@@ -1,5 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png" />
+  <img alt="Vue logo" style="width: 350px" src="./assets/logo.png" />
   <HelloWorld msg="Welcome to Your Vue.js App. Up next: hit the inspirobot API multiple times for several images. Then try to save those images, if possible (Darn you, CORS policy!)."
   />
 </template>
