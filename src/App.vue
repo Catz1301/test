@@ -15,6 +15,7 @@
 <script>
 import RowSquirrel from "./components/RowSquirrel.vue";
 import Squirrels from "./Squirrels.js";
+// import SqueakBounds from "./SqueakBounds.js";
 import Days from "./Days.js";
 
 export default {
@@ -42,6 +43,7 @@ function makeSquirrelList() {
       id: i,
       squirrel: squirrelList[i],
       day: getWeekdayName(Math.floor(accumIndex)),
+      
     });
     accumIndex += 1 / squirrelsPerDay;
   }

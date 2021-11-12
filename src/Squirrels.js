@@ -1,5 +1,5 @@
 export default [
-  "Sqeaky Squirrel",
+  "Squeaky Squirrel",
   "Pathetic Rat",
   "Emma von Eisenhower",
   "Long Ear",
