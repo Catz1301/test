@@ -5,14 +5,11 @@
       class="squirrelImg"
       :src="'/img/' + sqrlname + '.jpg'"
       :usemap="'#squirrel_' + sqrlname.replace(' ', '_') + 'ImgMap'"
-      width="3840"
-      height="2160"
     />
     <map
       :name="'squirrel_' + sqrlname.replace(' ', '_') + 'ImgMap'"
       :id="sqrlname + 'Map'"
     >
-      <!-- eslint-disable-next-line prettier/prettier -->
       <area
         id="areaBody"
         :alt="'Squeak ' + sqrlname + '\'s body!'"
@@ -35,16 +32,10 @@
 
 <script>
 import { Howl } from "../howler.js";
+
 export default {
   name: "Test",
   created() {},
-  /* setup(props) {
-    console.log(props);
-    let imageMap = new ImageMap(
-      document.getElementById(props.sqrlname + "Map")
-    );
-    imageMap.resize();
-  }, */
   data() {
     return {};
   },
@@ -80,7 +71,7 @@ export default {
 .rowText {
   box-sizing: border-box;
   background-color: aquamarine;
-  width: 355.555px;
+  width: 100%;
   padding-top: 6px;
   padding-bottom: 6px;
   padding-left: 6px;
@@ -90,6 +81,6 @@ export default {
 }
 
 .squirrelImg {
-  /* height: 200px; */
+  height: 200px;
 }
 </style>

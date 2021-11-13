@@ -8,8 +8,8 @@
       :day="sqrl.day"
       :coordBody="sqrl.coordBody"
       :coordTail="sqrl.coordTail"
+      class="rowSquirrel"
     />
-    <row-squirrel sqrlname="Pathetic Rat" day="Thursday" />
     <p class="todo">
       Add picture maps that play the squirrel's squeak sound when clicked on.
     </p>
@@ -94,10 +94,14 @@ function getWeekdayName(index) {
   text-align: left;
   color: #2c3e50;
   margin-top: 16px;
+  width: 355.555px;
 }
+#app .rowSquirrel {
+  margin-bottom: 16px;
+}
+
 #app .todo {
   width: 100%;
-  text-align: center;
   color: grey;
 }
 
