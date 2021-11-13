@@ -1,1 +1,4 @@
 node_modules
+.vscode
+src/components/IconButton.vue
+.vscode/settings.json
