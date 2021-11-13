@@ -6,16 +6,20 @@
       :key="sqrl.id"
       :sqrlname="sqrl.squirrel"
       :day="sqrl.day"
+      :coordBody="sqrl.coordBody"
+      :coordTail="sqrl.coordTail"
     />
     <row-squirrel sqrlname="Pathetic Rat" day="Thursday" />
-    <p class="todo">Add pictures for each squirrel and chipmunk.</p>
+    <p class="todo">
+      Add picture maps that play the squirrel's squeak sound when clicked on.
+    </p>
   </div>
 </template>
 
 <script>
 import RowSquirrel from "./components/RowSquirrel.vue";
 import Squirrels from "./Squirrels.js";
-// import SqueakBounds from "./SqueakBounds.js";
+import SqueakBounds from "./SqueakBounds.js";
 import Days from "./Days.js";
 
 export default {
@@ -43,7 +47,8 @@ function makeSquirrelList() {
       id: i,
       squirrel: squirrelList[i],
       day: getWeekdayName(Math.floor(accumIndex)),
-      
+      coordBody: SqueakBounds[squirrelList[i]].Body,
+      coordTail: SqueakBounds[squirrelList[i]].Tail,
     });
     accumIndex += 1 / squirrelsPerDay;
   }

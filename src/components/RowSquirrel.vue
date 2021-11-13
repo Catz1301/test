@@ -4,44 +4,73 @@
     <img
       class="squirrelImg"
       :src="'/img/' + sqrlname + '.jpg'"
-      usemap="#squirrelImgMap"
+      :usemap="'#squirrel_' + sqrlname.replace(' ', '_') + 'ImgMap'"
+      width="3840"
+      height="2160"
     />
-    <map name="squirrelImgMap">
+    <map
+      :name="'squirrel_' + sqrlname.replace(' ', '_') + 'ImgMap'"
+      :id="sqrlname + 'Map'"
+    >
       <!-- eslint-disable-next-line prettier/prettier -->
       <area
-        shape="rect"
-        coords="0,0,175,200"
-        @click="say('meow');"
-        alt=""
-      />
-      <area
         id="areaBody"
-        :alt="'Squeak ' + sqrlname"
+        :alt="'Squeak ' + sqrlname + '\'s body!'"
         @click="squeakBody()"
-        title="Squeak Defect Rat"
-        coords=""
+        :title="'Squeak ' + sqrlname + '\'s body!'"
+        :coords="coordBody"
         shape="polygon"
       />
-      <area shape="rect" coords="176,0,355,200" @click="say('woof')" alt="" />
+      <area
+        id="areaTail"
+        :alt="'Squeak ' + sqrlname + '\'s tail!'"
+        @click="squeakTail()"
+        :title="'Squeak ' + sqrlname + '\'s tail!'"
+        :coords="coordTail"
+        shape="polygon"
+      />
     </map>
   </div>
 </template>
 
 <script>
+import { Howl } from "../howler.js";
 export default {
   name: "Test",
   created() {},
+  /* setup(props) {
+    console.log(props);
+    let imageMap = new ImageMap(
+      document.getElementById(props.sqrlname + "Map")
+    );
+    imageMap.resize();
+  }, */
   data() {
     return {};
   },
   props: {
     sqrlname: String,
     day: String,
-    // coord: String,
+    coordBody: String,
+    coordTail: String,
   },
   methods: {
     say(str) {
       alert(str);
+    },
+    squeakBody() {
+      console.log(this.$props);
+      let sound = new Howl({
+        src: [`/snd/Body/${this.$props.sqrlname}.m4a`],
+      });
+      sound.play();
+    },
+    squeakTail() {
+      // alert("Tail Squeaked!");
+      let sound = new Howl({
+        src: [`/snd/Tail/${this.$props.sqrlname}.m4a`],
+      });
+      sound.play();
     },
   },
 };
@@ -61,6 +90,6 @@ export default {
 }
 
 .squirrelImg {
-  height: 200px;
+  /* height: 200px; */
 }
 </style>
