@@ -3,21 +3,19 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
+    "serve": "env NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "build": "env NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
     "lint": "export NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
-    "node-sass": "^6.0.1",
+    "howler": "^2.2.3",
     "register-service-worker": "^1.7.1",
-    "sass": "^1.43.4",
-    "sass-loader": "^10",
-    "vue": "^3.0.0",
-    "webpack": "^5.0.0"
+    "vue": "^3.0.0"
   },
   "resolutions": {
-    "@vue/cli-service/mini-css-extract-plugin": "0.8.0"
+    "@vue/cli-service/mini-css-extract-plugin": "0.8.0",
+    "sass-loader": "*"
   },
   "devDependencies": {
     "@vue/cli-plugin-babel": "~4.5.0",
