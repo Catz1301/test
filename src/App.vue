@@ -1,6 +1,14 @@
 <template>
   <!-- <img alt="Vue logo" style="width: 350px" src="./assets/logo.png" />  <- We may use this, who knows? -->
   <div id="squirrels">
+    <div id="storageBtns">
+      <button @click="saveList()" class="storageBtn" id="btnLeft">
+        Save List
+      </button>
+      <button @click="clearList()" class="storageBtn" id="btnRight">
+        Clear List
+      </button>
+    </div>
     <row-squirrel
       v-for="sqrl in items"
       :key="sqrl.id"
@@ -21,6 +29,7 @@ import RowSquirrel from "./components/RowSquirrel.vue";
 import Squirrels from "./Squirrels.js";
 import SqueakBounds from "./SqueakBounds.js";
 import Days from "./Days.js";
+import "./assets/productSans.woff2";
 
 export default {
   name: "App",
@@ -32,13 +41,41 @@ export default {
       items: [],
     };
   },
+  methods: {
+    saveList() {
+      let squirrels = [];
+      for (let i = 0; i < this.$data.items.length; i++) {
+        let squirrel = this.$data.items[i].squirrel;
+        squirrels.push(squirrel);
+      }
+      // this.getSquirrelOrderAsArray();
+      localStorage.setItem("sqrlList", squirrels.join(","));
+    },
+    clearList() {
+      localStorage.clear();
+    },
+    /* getSquirrelOrderAsArray() {
+      for (let i = 0; i < this.$data.items)
+      console.log(this.$data.items);
+    }, */
+  },
   created() {
-    this.$data.items = makeSquirrelList();
+    if (localStorage.getItem("sqrlList") != null) {
+      let sqrlArr = localStorage.getItem("sqrlList").split(",");
+      this.$data.items = makeSquirrelList(sqrlArr);
+    } else {
+      this.$data.items = makeSquirrelList();
+    }
   },
 };
 
-function makeSquirrelList() {
-  let squirrelList = shuffle(Squirrels);
+function makeSquirrelList(sqrlArr) {
+  let squirrelList;
+  if (sqrlArr && Array.isArray(sqrlArr)) {
+    squirrelList = sqrlArr;
+  } else {
+    squirrelList = shuffle(Squirrels);
+  }
   let returnArray = [];
   let squirrelsPerDay = 2;
   let accumIndex = 0;
@@ -87,22 +124,55 @@ function getWeekdayName(index) {
 </script>
 
 <style>
+@font-face {
+  font-family: product-sans;
+  src: url("./assets/productSans.woff2");
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: left;
+  text-align: center;
   color: #2c3e50;
   margin-top: 16px;
   width: 355.555px;
+  margin: auto;
 }
+
 #app .rowSquirrel {
   margin-bottom: 16px;
+  font-family: "product-sans";
 }
 
 #app .todo {
   width: 100%;
   color: grey;
+}
+
+#storageBtns {
+  display: flex;
+  justify-content: space-between;
+}
+
+.storageBtn {
+  border-radius: 7px;
+  font-family: product-sans;
+  outline: none;
+  border: 1px solid black;
+  width: 170px;
+  margin-bottom: 8px;
+  height: 32px;
+  background-color: peachpuff;
+  /* display: flexbox; */
+}
+
+#btnLeft {
+  float: left;
+}
+
+#btnRight {
+  float: right;
 }
 
 .todo::before {
