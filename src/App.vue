@@ -2,12 +2,18 @@
   <!-- <img alt="Vue logo" style="width: 350px" src="./assets/logo.png" />  <- We may use this, who knows? -->
   <div id="squirrels">
     <div id="storageBtns">
-      <button @click="saveList()" class="storageBtn" id="btnLeft">
-        Save List
-      </button>
-      <button @click="clearList()" class="storageBtn" id="btnRight">
-        Clear List
-      </button>
+      <button-icon
+        @click="saveList()"
+        :iconSrc="require('./assets/save_icon.webp')"
+        text="Save List"
+        showIcon
+      />
+      <button-icon
+        @click="clearList()"
+        :iconSrc="require('./assets/clear_icon.webp')"
+        text="Clear List"
+        showIcon
+      />
     </div>
     <row-squirrel
       v-for="sqrl in items"
@@ -25,7 +31,9 @@
 </template>
 
 <script>
+// Importing components
 import RowSquirrel from "./components/RowSquirrel.vue";
+import ButtonIcon from "./components/ButtonIcon.vue";
 import Squirrels from "./Squirrels.js";
 import SqueakBounds from "./SqueakBounds.js";
 import Days from "./Days.js";
@@ -35,6 +43,7 @@ export default {
   name: "App",
   components: {
     RowSquirrel,
+    ButtonIcon,
   },
   data() {
     return {
@@ -153,18 +162,6 @@ function getWeekdayName(index) {
 #storageBtns {
   display: flex;
   justify-content: space-between;
-}
-
-.storageBtn {
-  border-radius: 7px;
-  font-family: product-sans;
-  outline: none;
-  border: 1px solid black;
-  width: 170px;
-  margin-bottom: 8px;
-  height: 32px;
-  background-color: peachpuff;
-  /* display: flexbox; */
 }
 
 #btnLeft {
