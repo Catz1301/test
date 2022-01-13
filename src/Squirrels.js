@@ -10,4 +10,5 @@ export default [
   "Skinny Tail",
   "Normal Rat",
   "Twisted Paw",
+  "Teapot Rat",
 ];
