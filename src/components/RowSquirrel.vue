@@ -51,13 +51,14 @@ export default {
     },
     squeakBody() {
       console.log(this.$props);
+      console.log(`/snd/Body/${this.$props.sqrlname}.m4a`);
       let sound = new Howl({
         src: [`/snd/Body/${this.$props.sqrlname}.m4a`],
       });
       sound.play();
     },
     squeakTail() {
-      // alert("Tail Squeaked!");
+      alert("Tail Squeaked!");
       let sound = new Howl({
         src: [`/snd/Tail/${this.$props.sqrlname}.m4a`],
       });
