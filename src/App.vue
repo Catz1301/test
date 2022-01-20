@@ -24,9 +24,7 @@
       :coordTail="sqrl.coordTail"
       class="rowSquirrel"
     />
-    <p class="todo">
-      Add picture maps that play the squirrel's squeak sound when clicked on.
-    </p>
+    <p class="todo">Implement sync abilities</p>
   </div>
 </template>
 
@@ -69,6 +67,9 @@ export default {
     }, */
   },
   created() {
+    navigator.serviceWorker.ready.then(function(registered) {
+      return registered.sync.register("syncEvent");
+    });
     if (localStorage.getItem("sqrlList") != null) {
       let sqrlArr = localStorage.getItem("sqrlList").split(",");
       this.$data.items = makeSquirrelList(sqrlArr);
