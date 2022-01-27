@@ -1,14 +1,16 @@
 {
-  "name": "test",
-  "version": "0.1.0",
+  "name": "squirrelschooldays",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "serve": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service serve",
     "build": "env NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service build",
-    "lint":  "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
+    "lint": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
   },
   "dependencies": {
     "core-js": "^3.6.5",
+    "firebase": "^9.6.4",
+    "firebaseui": "^6.0.0",
     "howler": "^2.2.3",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.0"

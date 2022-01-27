@@ -1,4 +1,4 @@
-# test
+# Sqquirrel School Days
 
 ## Project setup
 ```
