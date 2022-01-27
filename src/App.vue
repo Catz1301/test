@@ -74,7 +74,7 @@ export default {
               let fbRTDbSquirrelList = data.list;
               let fbRTDbSquirrelListArr = fbRTDbSquirrelList.split(",");
               this.$data.items = [];
-              this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr)
+              this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
             });
             let syncdSquirrelList = firebaseRTDb.oneShotSync();
             console.log(syncdSquirrelList);
@@ -123,7 +123,9 @@ export default {
       }
     },
     clearList() {
-      localStorage.clear();
+      // localStorage.clear();
+      this.$data.items = [];
+      this.$data.items = makeSquirrelList();
     },
     /* getSquirrelOrderAsArray() {
       for (let i = 0; i < this.$data.items)

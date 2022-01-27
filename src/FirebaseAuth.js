@@ -63,6 +63,7 @@ export class FirebaseAuth {
   }
 
   popupSignin(callback) {
+    firebase.auth().setPersistence(firebase.auth.Auth.Persistence.LOCAL);
     firebase
       .auth()
       .signInWithPopup(this.provider)
