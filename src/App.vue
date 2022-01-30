@@ -1,5 +1,9 @@
 <template>
   <!-- <img alt="Vue logo" style="width: 350px" src="./assets/logo.png" />  <- We may use this, who knows? -->
+  <div class="signin">
+    <button @click="signInSignOut()" id="signInOutBtn">Sign in</button>
+    <img src="" alt="" id="userPP" />
+  </div>
   <div id="squirrels">
     <div id="storageBtns">
       <button-icon
@@ -9,16 +13,11 @@
         showIcon
       />
       <button-icon
-        @click="clearList()"
+        @click="newList()"
         :iconSrc="require('./assets/clear_icon.webp')"
-        text="Clear List"
+        text="New List"
         showIcon
       />
-    </div>
-    <div class="signin">
-      <span id="signinStatus"></span>
-      <br />
-      <button @click="signInSignOut()" id="signInOutBtn">Login</button>
     </div>
     <row-squirrel
       v-for="sqrl in items"
@@ -29,7 +28,10 @@
       :coordTail="sqrl.coordTail"
       class="rowSquirrel"
     />
-    <p class="todo">Implement sync abilities</p>
+    <!-- <p class="todo">Implement sync abilities - DONE!!!!!!!!!!!</p> -->
+    <p class="copyright">
+      Copyright 2022 by Joshua Miller. All rights reserved.
+    </p>
   </div>
 </template>
 
@@ -45,8 +47,11 @@ import { FirebaseAuth } from "./FirebaseAuth.js";
 import { FirebaseRTDb } from "./FirebaseRTDb";
 // import firebase from "firebase/compat/app";
 
+/** @type {FirebaseAuth} */
 var firebaseAuth;
 var firebaseRTDb;
+
+// var clearListBtn;
 
 export default {
   name: "App",
@@ -61,19 +66,21 @@ export default {
   },
   methods: {
     signInSignOut() {
+      /** @type {HTMLImageElement} */
+      let userProfilePic = document.getElementById("userPP");
       if (firebaseAuth._initialized && !firebaseAuth.signedIn) {
         firebaseAuth.popupSignin(() => {
-          console.log(
-            "Signed in as " + firebaseAuth.getBasicUserInfo().displayName
-          );
-          document.getElementById("signinStatus").innerText =
-            "Signed in as " + firebaseAuth.getBasicUserInfo().displayName;
-          document.getElementById("signInOutBtn").innerText = "Sign Out";
+          document.getElementById("signInOutBtn").innerText =
+            firebaseAuth.getBasicUserInfo().displayName;
+
+          userProfilePic.src = firebaseAuth.getBasicUserInfo().photoURL;
+          userProfilePic.style.display = "block";
+
           if (firebaseRTDb._initialized) {
             firebaseRTDb.setUID(firebaseAuth.userId, (data) => {
               let fbRTDbSquirrelList = data.list;
               let fbRTDbSquirrelListArr = fbRTDbSquirrelList.split(",");
-              this.$data.items = [];
+              // this.$data.items = []; // <-- UNNEEDED
               this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
             });
             let syncdSquirrelList = firebaseRTDb.oneShotSync();
@@ -81,14 +88,18 @@ export default {
             this.$data.items = [];
             this.$data.items = makeSquirrelList(syncdSquirrelList);
           }
-          // syncSquirrelList(firebaseAuth.uid);
         });
       } else {
-        firebaseAuth.signOut(() => {
-          console.debug("Signed out successfully");
-          document.getElementById("signinStatus").innerText = "";
-          document.getElementById("signInOutBtn").innerText = "Sign In";
-        });
+        let confirmSignOut = confirm("Are you sure you want to sign out?");
+        if (confirmSignOut) {
+          firebaseAuth.signOut(() => {
+            console.debug("Signed out successfully");
+
+            userProfilePic.src = "";
+            userProfilePic.style.display = "none";
+            document.getElementById("signInOutBtn").innerText = "Sign In";
+          });
+        }
       }
     },
     saveList() {
@@ -98,33 +109,33 @@ export default {
         squirrels.push(squirrel);
       }
 
-      // this.getSquirrelOrderAsArray();
-      localStorage.setItem("sqrlList", squirrels.join(","));
-      // update firebase realtime database listing
-      // console.log(
-      //   firebaseAuth._initialized &&
-      //     firebaseAuth.signedIn &&
-      //     firebaseRTDb._initialized &&
-      //     firebaseRTDb._uid != null
-      // );
-      // console.debug(firebaseAuth._initialized);
-      // console.debug(firebaseAuth.signedIn);
-      // console.debug(firebaseRTDb._initialized);
-      // console.debug(firebaseRTDb._uid != null);
+      if (firebaseAuth._initialized && !firebaseAuth.signedIn) {
+        localStorage.setItem("sqrlList", squirrels.join(","));
+      } else {
+        // update firebase realtime database listing
+        // console.log(
+        //   firebaseAuth._initialized &&
+        //     firebaseAuth.signedIn &&
+        //     firebaseRTDb._initialized &&
+        //     firebaseRTDb._uid != null
+        // );
+        // console.debug(firebaseAuth._initialized);
+        // console.debug(firebaseAuth.signedIn);
+        // console.debug(firebaseRTDb._initialized);
+        // console.debug(firebaseRTDb._uid != null);
 
-      if (
-        firebaseAuth._initialized &&
-        firebaseAuth.signedIn &&
-        firebaseRTDb._initialized &&
-        firebaseRTDb._uid != null
-      ) {
-        console.log("writeSquirrelList(squirrels.join(',')");
-        firebaseRTDb.writeSquirrelList(squirrels.join(","));
+        if (
+          firebaseAuth._initialized &&
+          firebaseAuth.signedIn &&
+          firebaseRTDb._initialized &&
+          firebaseRTDb._uid != null
+        ) {
+          console.log("writeSquirrelList(squirrels.join(',')");
+          firebaseRTDb.writeSquirrelList(squirrels.join(","));
+        }
       }
     },
-    clearList() {
-      // localStorage.clear();
-      this.$data.items = [];
+    newList() {
       this.$data.items = makeSquirrelList();
     },
     /* getSquirrelOrderAsArray() {
@@ -135,26 +146,45 @@ export default {
   created() {
     // eslint-disable-next-line no-unused-vars
     firebaseAuth = new FirebaseAuth();
-    firebaseAuth.init();
     firebaseRTDb = new FirebaseRTDb();
-    firebaseRTDb.init(firebaseAuth._app);
-    navigator.serviceWorker.ready.then(function (registered) {
-      return registered.sync.register("syncEvent");
+    firebaseAuth.init(() => {
+      // document.getElementById("signinStatus").innerText =
+      // "Signed in as " + firebaseAuth.getBasicUserInfo().displayName;
+      // document.getElementById("signInOutBtn").innerText = "Sign out";
+      document.getElementById("signInOutBtn").innerText =
+        firebaseAuth.getBasicUserInfo().displayName;
+      /** @type {HTMLImageElement} */
+      let userProfilePic = document.getElementById("userPP");
+
+      userProfilePic.src = firebaseAuth.getBasicUserInfo().photoURL;
+      userProfilePic.style.display = "block";
+      firebaseRTDb.init(firebaseAuth._app);
+      firebaseRTDb.setUID(firebaseAuth.userId, (data) => {
+        let fbRTDbSquirrelList = data.list;
+        let fbRTDbSquirrelListArr = fbRTDbSquirrelList.split(",");
+        // this.$data.items = [];
+        this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
+      });
+      // this.$data.items = firebaseRTDb.oneShotSync();
     });
-    // firebaseAuth.setupUI("#firebaseui-auth-container");
-    if (localStorage.getItem("sqrlList") != null) {
-      //let sqrlArr = localStorage.getItem("sqrlList").split(",");
-      //this.$data.items = makeSquirrelList(sqrlArr);
+    if (!firebaseRTDb._initialized) {
+      // firebaseRTDb = new FirebaseRTDb();
+      firebaseRTDb.init(firebaseAuth._app);
+    }
+    // clearListBtn = document.get("")
+
+    if (firebaseAuth._initialized && !firebaseAuth.signedIn) {
+      if (localStorage.getItem("sqrlList") != null) {
+        let sqrlArr = localStorage.getItem("sqrlList").split(",");
+        this.$data.items = makeSquirrelList(sqrlArr);
+      } else {
+        this.$data.items = makeSquirrelList();
+      }
     } else {
       this.$data.items = makeSquirrelList();
     }
   },
 };
-
-// eslint-disable-next-line no-unused-vars
-function syncSquirrelList(uid) {
-  firebaseRTDb.syncSavedSquirrelList(uid);
-}
 
 function makeSquirrelList(sqrlArr) {
   let squirrelList;
@@ -252,22 +282,41 @@ function getWeekdayName(index) {
 
 .signin {
   position: fixed;
-  bottom: 8px;
+  top: 8px;
   right: 8px;
   justify-content: right;
-}
-.signin button {
-  background-color: antiquewhite;
-  outline: none;
-  outline-color: none;
-  border: 1px solid black;
+  display: flex;
+  background: #333342;
+  border-color: tan;
 }
 
-.signin #signinStatus {
-  text-align: right;
+.signin button {
+  background-color: dodgerblue;
+  color: black;
+  outline: none;
+  /* outline-color: transparent; */
+  padding: 4pt;
+  border: 1px solid transparent;
+  box-shadow: none;
+  border-radius: 4px;
+  margin-right: 8px;
+}
+
+.signin #userPP {
+  /* text-align: right; */
+  width: 32px;
+  height: 32px;
+  background-size: 32px 32px;
+  border-radius: 50%;
+  display: none;
 }
 
 .todo::before {
   content: "TODO: ";
+}
+
+.copyright {
+  width: 100%;
+  color: grey;
 }
 </style>
