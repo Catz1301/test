@@ -282,7 +282,7 @@ function getWeekdayName(index) {
 
 .signin {
   position: fixed;
-  top: 8px;
+  bottom: 8px;
   right: 8px;
   justify-content: right;
   display: flex;
