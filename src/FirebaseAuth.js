@@ -4,12 +4,7 @@ require("firebase/compat/auth");
 require("firebase/compat/database");
 var firebaseui = require("firebaseui");
 
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-// eslint-disable-next-line no-unused-vars
+/** @private */
 const firebaseConfig = {
   apiKey: "AIzaSyAAuUCSnKeoVDBSZXklIQZ8zq71bZO3Zrk",
   authDomain: "squirrel-school-days.firebaseapp.com",
@@ -27,6 +22,13 @@ const firebaseConfig = {
  *  @property {string | null} photoURL
  */
 
+/** @callback signInCallback Executed when signin is successful.
+ *  @returns void
+ */
+
+/** @callback signOutCallback Executed when signout is successful
+ *  @returns void
+ */
 // Initialize Firebase
 // eslint-disable-next-line no-unused-vars
 
@@ -34,6 +36,7 @@ const firebaseConfig = {
 // var database = firebase.database();
 // const analytics = getAnalytics(app);
 
+// /** @namespace */
 export class FirebaseAuth {
   /** Flag indicating if the instance has been inititialized
    *  @type {boolean}
@@ -45,6 +48,8 @@ export class FirebaseAuth {
   _app;
   /** The user's unique ID
    *  @type {firebase.User.userId}
+   *  @memberof
+   *  @instance
    */
   userId;
   /** Flag indicating if the user is signed in
@@ -58,7 +63,7 @@ export class FirebaseAuth {
     this.userId = null;
     this.signedIn = false;
   }
-  /** @param {funcion} authStateChangedCallback - The callback executed when authstate changes */
+  /** @param {function} authStateChangedCallback - The callback executed when authstate changes */
   init(authStateChangedCallback) {
     // eslint-disable-next-line no-unused-vars
     this._app = firebase.initializeApp(firebaseConfig);
@@ -95,9 +100,9 @@ export class FirebaseAuth {
 
   /** @method
    *  Creates a popup prompting the user to sign in using their google account. Executes callback if successful.
-   *  @param {function} callback - Executed if signin is successful.
+   *  @param {signInCallback} signInCallback - Executed if signin is successful.
    */
-  popupSignin(callback) {
+  popupSignin(signInCallback) {
     // firebase
     //   .auth(this._app)
     //   .setPersistence(firebase.auth.Auth.Persistence.LOCAL)
@@ -117,8 +122,8 @@ export class FirebaseAuth {
         this.signedIn = true;
         // ...
         // eslint-disable-next-line prettier/prettier
-        if (typeof callback == 'function') {
-          callback();
+        if (typeof signInCallback == 'function') {
+          signInCallback();
         } else {
           console.warn("callback must be of a function type. Ignoring.");
         }
@@ -144,9 +149,9 @@ export class FirebaseAuth {
   }
   /** @method
    *  Signs the user's google account aut of this application. The user will remain logged into their google account.
-   *  @param {function} callback - Executed if operation was successful.
+   *  @param {signOutCallback} signOutCallback - Executed if operation was successful.
    */
-  signOut(callback) {
+  signOut(signOutCallback) {
     console.debug(this.signedIn);
     if (this.signedIn) {
       firebase
@@ -157,7 +162,7 @@ export class FirebaseAuth {
           console.debug("Signed out");
           this.token = null;
           this.user = null;
-          callback();
+          signOutCallback();
         })
         .catch((err) => {
           console.error(err);
@@ -165,6 +170,7 @@ export class FirebaseAuth {
     }
   }
   /** @method
+   *  Returns limited information about the user, contained in a {@link BasicUserInfo} object.
    *  @returns BasicUserInfo */
   getBasicUserInfo() {
     if (this.signedIn && this.user != null) {

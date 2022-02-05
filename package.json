@@ -8,11 +8,14 @@
     "lint": "set NODE_OPTIONS=--openssl-legacy-provider && vue-cli-service lint"
   },
   "dependencies": {
+    "@material/card": "^13.0.0",
     "core-js": "^3.6.5",
     "firebase": "^9.6.4",
     "firebaseui": "^6.0.0",
     "googleapis": "^92.0.0",
     "howler": "^2.2.3",
+    "jsdoc": "^3.6.10",
+    "material-components-web": "^13.0.0",
     "register-service-worker": "^1.7.1",
     "vue": "^3.0.0"
   },
@@ -28,10 +31,13 @@
     "@vue/compiler-sfc": "^3.0.0",
     "@vue/eslint-config-prettier": "^6.0.0",
     "babel-eslint": "^10.1.0",
+    "dart-sass": "^1.25.0",
     "eslint": "^6.7.2",
     "eslint-plugin-prettier": "^3.3.1",
     "eslint-plugin-vue": "^7.0.0",
-    "prettier": "^2.2.1"
+    "prettier": "^2.2.1",
+    "sass": "^1.49.7",
+    "sass-loader": "^10.2.1"
   },
   "eslintConfig": {
     "root": true,

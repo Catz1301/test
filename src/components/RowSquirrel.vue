@@ -34,7 +34,7 @@
 import { Howl } from "../howler.js";
 
 export default {
-  name: "Test",
+  name: "RowSquirrel",
   created() {},
   data() {
     return {};

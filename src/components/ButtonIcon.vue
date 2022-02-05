@@ -1,13 +1,26 @@
 <template>
-  <button class="iconButton">
+  <button
+    v-if="iconOnly == false"
+    class="iconButton iconText"
+    @click="$emit('click', $event)"
+  >
     <img
       v-if="showIcon == true"
       class="icon"
       :src="iconSrc"
       width="16"
       height="16"
+      @click="$"
     />
     <span class="text">{{ text }}</span>
+  </button>
+  <button
+    v-if="iconOnly == true"
+    class="iconButton iconOnly"
+    @click="$emit('click', $event)"
+  >
+    <img class="icon" :src="iconSrc" width="16" height="16" />
+    <!-- <span class="text">{{ text }}</span> -->
   </button>
 </template>
 
@@ -20,6 +33,7 @@ export default {
   },
   props: {
     showIcon: Boolean,
+    iconOnly: Boolean,
     iconSrc: String,
     text: String,
   },
@@ -28,12 +42,24 @@ export default {
 </script>
 
 <style>
+.iconText {
+  width: 170px;
+}
+
+.iconOnly {
+  width: 48px;
+  margin-left: unset;
+}
+
+.iconOnly > .icon {
+  margin-left: 0px;
+  margin-right: auto;
+}
 .iconButton {
   border-radius: 7px;
   font-family: product-sans;
   outline: none;
   border: 1px solid black;
-  width: 170px;
   margin-bottom: 8px;
   height: 32px;
   background-color: peachpuff;
