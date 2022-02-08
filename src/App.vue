@@ -99,7 +99,7 @@ import SqueakBounds from "./SqueakBounds.js";
 import Days from "./Days.js";
 import "./assets/productSans.woff2";
 import { FirebaseAuth } from "./FirebaseAuth.js";
-import { FirebaseRTDb } from "./FirebaseRTDb";
+import { FirebaseRTDb } from "./FirebaseRTDb.js";
 // import NotYetImplementedError from "./Errors/NotYetImplementedError.js";
 
 /** @typedef {Object} ListConfig
@@ -190,7 +190,7 @@ export default {
 
         /** @type {ListConfig} */
         let config = {
-          squirrelsPerDay: squirrelNum,
+          squirrelsPerDay: parseInt(squirrelNum),
           autoRemoveDays,
           includeTeapotRat,
         };
@@ -287,7 +287,7 @@ export default {
                 // // break up squirrel order string into array.
                 // let fbRTDbSquirrelListArr = fbRTDbSquirrelList.split(",");
                 // // this.$data.items = []; // <-- UNNEEDED
-                // this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
+                // this.$data.items = this.makeSquirrelList(fbRTDbSquirrelListArr);
               },
               (listConfigData) => {
                 this.handleSynchronization(listConfigData, true, false);
@@ -302,7 +302,7 @@ export default {
 
             console.log(syncdSquirrelList);
             this.$data.items = [];
-            this.$data.items = makeSquirrelList(syncdSquirrelList);
+            this.$data.items = this.makeSquirrelList(syncdSquirrelList);
           }
         });
       } else {
@@ -321,12 +321,18 @@ export default {
     saveList() {
       let squirrels = [];
       for (let i = 0; i < this.$data.items.length; i++) {
-        let squirrel = this.$data.items[i].squirrel;
+        let squirrel = this.$data.items[i].squirrel; // maybe think about saving the full squirrel object instead of just the name. This should aid in autoRemovePastDays functionality.
         squirrels.push(squirrel);
       }
 
       if (firebaseAuth._initialized && !firebaseAuth.signedIn) {
+        let savedDate = Date.now();
+        let saveObj = {
+          savedDate,
+          squirrels: squirrels.join(","),
+        };
         localStorage.setItem("sqrlList", squirrels.join(","));
+        localStorage.setItem("savedSquirrelsObj", JSON.stringify(saveObj));
       } else {
         // update firebase realtime database listing
         // console.log(
@@ -352,7 +358,7 @@ export default {
       }
     },
     newList() {
-      this.$data.items = makeSquirrelList();
+      this.$data.items = this.makeSquirrelList();
     },
 
     /** @method
@@ -386,9 +392,82 @@ export default {
         // break up squirrel order string into array.
         let fbRTDbSquirrelListArr = fbRTDbSquirrelList.list.split(",");
         // this.$data.items = []; // <-- UNNEEDED
-        this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
+        this.$data.items = this.makeSquirrelList(fbRTDbSquirrelListArr);
         // throw new NotYetImplementedError(301, "handleSynchronization", "App.vue");
       }
+    },
+    /** @function
+     *  Makes the list of squirrels
+     *  @param {Array} sqrlArr a predetermined array of squirrels. null by default
+     *  @param {ListConfig} settingsConfig settings for creating new squirrels.
+     *  @returns Array of elements, one for each squirrel.
+     */
+    makeSquirrelList(sqrlArr = null) {
+      let squirrelList;
+      if (sqrlArr != null && Array.isArray(sqrlArr)) {
+        squirrelList = sqrlArr;
+      } else {
+        squirrelList = this.shuffle(Squirrels);
+      }
+      let returnArray = [];
+      console.log(
+        "mooo: " + settingsConfig.squirrelsPerDay
+          ? settingsConfig.squirrelsPerDay
+          : 2
+      );
+      console.debug(
+        "settingsConfig.squirrelsPerDay: %d",
+        settingsConfig.squirrelsPerDay
+      );
+      console.log(settingsConfig);
+      let squirrelsPerDay = settingsConfig.squirrelsPerDay;
+      let accumIndex = 1;
+      let squirrelIndex = 1;
+      // let dayNum = getWeedDay();
+
+      for (let i = 0; i < squirrelList.length; i++) {
+        if (
+          settingsConfig.includeTeapotRat == false &&
+          squirrelList[i] == "Teapot Rat"
+        ) {
+          if (squirrelIndex > 0) squirrelIndex--;
+          continue;
+        }
+        returnArray.push({
+          id: i,
+          squirrel: squirrelList[i],
+          day: getWeekdayName(Math.round(accumIndex - 1)),
+          coordBody: SqueakBounds[squirrelList[i]].Body,
+          coordTail: SqueakBounds[squirrelList[i]].Tail,
+        });
+        console.debug(
+          `i: ${i}, accumIndex: ${accumIndex}, squirrelIndex: ${squirrelIndex}, squirrelsPerDay: ${squirrelsPerDay}, (squirrelIndex % squirrelsPerDay): ${
+            squirrelIndex % squirrelsPerDay
+          }`
+        );
+        accumIndex += squirrelIndex % squirrelsPerDay == 0 ? 1 : 0; // squirrelsPerDay;
+        squirrelIndex++;
+        console.log(accumIndex);
+      }
+      return returnArray;
+    },
+    shuffle(array) {
+      let currentIndex = array.length,
+        randomIndex;
+
+      // While there remain elements to shuffle...
+      while (currentIndex != 0) {
+        // Pick a remaining element...
+        randomIndex = Math.floor(Math.random() * currentIndex);
+        currentIndex--;
+
+        // And swap it with the current element.
+        [array[currentIndex], array[randomIndex]] = [
+          array[randomIndex],
+          array[currentIndex],
+        ];
+      }
+      return array;
     },
     /* getSquirrelOrderAsArray() {
       for (let i = 0; i < this.$data.items)
@@ -419,7 +498,7 @@ export default {
           // let fbRTDbSquirrelList = data.list;
           // let fbRTDbSquirrelListArr = fbRTDbSquirrelList.split(",");
           // // this.$data.items = [];
-          // this.$data.items = makeSquirrelList(fbRTDbSquirrelListArr);
+          // this.$data.items = this.makeSquirrelList(fbRTDbSquirrelListArr);
         },
         (listConfigData) => {
           this.handleSynchronization(listConfigData, true, false);
@@ -434,81 +513,71 @@ export default {
     // clearListBtn = document.get("")
 
     if (firebaseAuth._initialized && !firebaseAuth.signedIn) {
-      if (localStorage.getItem("sqrlList") != null) {
-        let sqrlArr = localStorage.getItem("sqrlList").split(",");
-        this.$data.items = makeSquirrelList(sqrlArr);
-      } else {
-        this.$data.items = makeSquirrelList();
-      }
       if (localStorage.getItem("squirrelConfig") != null) {
         settingsConfig = JSON.parse(localStorage.getItem("squirrelConfig"));
-        document.getElementById("numberOfSquirrels").value =
-          settingsConfig.squirrelsPerDay;
-        document.getElementById("nOSOutput").value =
-          settingsConfig.squirrelsPerDay;
-        document.getElementById("autoRemovePastDays").checked =
-          settingsConfig.autoRemoveDays;
-        document.getElementById("includeTeapotRat").checked =
-          settingsConfig.includeTeapotRat;
+        settingsConfig.squirrelsPerDay = parseInt(
+          settingsConfig.squirrelsPerDay
+        );
+      } else {
+        settingsConfig = {
+          squirrelsPerDay: 2,
+          autoRemoveDays: false,
+          includeTeapotRat: true,
+        };
+      }
+      if (localStorage.getItem("sqrlList") != null) {
+        let sqrlArr = localStorage.getItem("sqrlList").split(",");
+        this.$data.items = this.makeSquirrelList(sqrlArr);
+      } else {
+        this.$data.items = this.makeSquirrelList();
+      }
+      if (localStorage.getItem("squirrelConfig") != null) {
+        setTimeout(() => {
+          settingsConfig = JSON.parse(localStorage.getItem("squirrelConfig"));
+          document.getElementById("numberOfSquirrels").value =
+            settingsConfig.squirrelsPerDay;
+          document.getElementById("nOSOutput").value =
+            settingsConfig.squirrelsPerDay;
+          document.getElementById("autoRemovePastDays").checked =
+            settingsConfig.autoRemoveDays;
+          document.getElementById("includeTeapotRat").checked =
+            settingsConfig.includeTeapotRat;
+        }, 1);
       }
     } else {
-      this.$data.items = makeSquirrelList();
+      if (firebaseRTDb._initialized == true) {
+        settingsConfig = firebaseRTDb.oneShotListConfigSync();
+      } else {
+        settingsConfig = {
+          squirrelsPerDay: 2,
+          autoRemoveDays: false,
+          includeTeapotRat: true,
+        };
+      }
+      this.$data.items = this.makeSquirrelList();
     }
     // window.firebaseAuth = firebaseAuth;
     // window.firebaseRTDb = firebaseRTDb;
   },
 };
 
-function makeSquirrelList(sqrlArr) {
-  let squirrelList;
-  if (sqrlArr && Array.isArray(sqrlArr)) {
-    squirrelList = sqrlArr;
-  } else {
-    squirrelList = shuffle(Squirrels);
-  }
-  let returnArray = [];
-  let squirrelsPerDay = 2;
-  let accumIndex = 0;
-  for (let i = 0; i < squirrelList.length; i++) {
-    returnArray.push({
-      id: i,
-      squirrel: squirrelList[i],
-      day: getWeekdayName(Math.floor(accumIndex)),
-      coordBody: SqueakBounds[squirrelList[i]].Body,
-      coordTail: SqueakBounds[squirrelList[i]].Tail,
-    });
-    accumIndex += 1 / squirrelsPerDay;
-  }
-  return returnArray;
-}
-
-function shuffle(array) {
-  let currentIndex = array.length,
-    randomIndex;
-
-  // While there remain elements to shuffle...
-  while (currentIndex != 0) {
-    // Pick a remaining element...
-    randomIndex = Math.floor(Math.random() * currentIndex);
-    currentIndex--;
-
-    // And swap it with the current element.
-    // eslint-disable-next-line prettier/prettier
-    [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
-  }
-  return array;
-}
-
 function getWeedDay() {
-  let date = new Date();
+  let date = new Date(/* 2022, 1, 6, 21, 34, 0 */);
+  console.log(date);
+  console.log(date.getDay());
   // return 420;
   return date.getDay();
+  // return (date.getDay() == 6 || date.getDay() == 0) ? 1;
   //let w =
 }
 
 function getWeekdayName(index) {
+  // eslint-disable-next-line no-unused-vars
   let dayOffset = getWeedDay();
-  let day = (dayOffset + index - 1) % 5;
+  // let day = (dayOffset + index - 1) % 5;
+  let day = (dayOffset + index) % 5;
+  console.debug(`index: ${index}, day: ${day}, dayName: ${Days[day]}`);
+  // console.log(Days[day]);
   return Days[day];
 }
 </script>

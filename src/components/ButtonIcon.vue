@@ -10,7 +10,7 @@
       :src="iconSrc"
       width="16"
       height="16"
-      @click="$"
+      @click="$emit('click', $event)"
     />
     <span class="text">{{ text }}</span>
   </button>
@@ -26,7 +26,7 @@
 
 <script>
 export default {
-  name: "Test",
+  name: "ButtonIcon",
   created() {},
   data() {
     return {};

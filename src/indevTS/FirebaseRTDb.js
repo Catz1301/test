@@ -1,67 +1,30 @@
+"use strict";
+exports.__esModule = true;
 // Import the functions you need from the SDKs you need
-import firebase from "firebase/compat/app";
+var app_1 = require("firebase/compat/app");
 // eslint-disable-next-line no-unused-vars
 // import { FirebaseAuth } from "./FirebaseAuth.js";
 require("firebase/compat/auth");
 require("firebase/compat/database");
-
-/** @typedef {Object} ListConfig
- *  @property {int} squirrelsPerDay - How many squirrels to be taken a day.
- *  @property {boolean} autoRemoveDays - Automatically remove previous days.
- *  @property {boolean} includeTeapotRat = Includes Teapot rat if enabled.
- */
-
-/** @typedef {Object} SquirrelListSnapshotVal
- *  @property {string} squirrelList - An array of squirrels represented by a comma-separated string.
- */
-// /** @callback listConfigListenerCallback
-//  *  @param {ListConfig} listConfig - A {@link ListConfig} containing the settings for generating new lists.
-//  */
-/** @callback listListenerCallback
- *  @param {SquirrelListSnapshotVal} data - An object containing the list of squirrels and {@link ListConfig|configurations} for generating new lists.
- *  @returns void
- */
-/** @callback listConfigListenerCallback
- *  @param {ListConfig} listConfig - A {@link ListConfig} containing the settings for generating new lists.
- */
-
-export class FirebaseRTDb {
-  // public
-  database;
-  squirrelListListenerSync;
-  // initialized;
-
-  // private
-  _initialized;
-  _firebaseApp;
-  _uid;
-  _squirrelListRef;
-  _squirrelListConfigRef;
-  // methods
-  constructor() {
-    //TODO: Implement,
+var FirebaseRTDb = /** @class */ (function () {
+  function FirebaseRTDb() {
     this._initialized = false;
     this._uid = null;
     this.database = null;
     this._squirrelListRef = null;
     this._squirrelListConfigRef = null;
-    this.squirrelListListenerSync = [];
-    // console.log(uid);
+    // this.squirrelListListenerSync = [];
   }
-
-  init(firebaseApp) {
+  FirebaseRTDb.prototype.init = function (firebaseApp) {
     this._initialized = true;
     this._firebaseApp = firebaseApp;
-    this.database = firebase.database(this._firebaseApp);
-  }
-
-  /** @method
-   *  Sets the instance's _uid property to user's uid. The method then sets up a listener for changes in the database and calls listenerCallback when a change happens.
-   *  @param {firebase.User.userId} newUID - The uid from {@link FirebaseAuth#userId}
-   *  @param {listenerCallback} listenerCallback - Called when a property of user/userId/squirrelList changes in the database.
-   */
-  // eslint-disable-next-line no-unused-vars
-  setUID(newUID, listListenerCallback, listConfigListenerCallback) {
+    this.database = app_1["default"].database(this._firebaseApp);
+  };
+  FirebaseRTDb.prototype.setUID = function (
+    newUID,
+    listListenerCallback,
+    listConfigListenerCallback
+  ) {
     // Remove onValue listener and set squirrelListRef to null if newUID is null
     if (newUID == null) {
       if (this._squirrelListRef != null) {
@@ -69,13 +32,11 @@ export class FirebaseRTDb {
       }
       this._squirrelListRef = null;
     }
-
     // ensure squirrelListRef isn't null before calling its off() method.
     if (this._squirrelListRef != null) {
       this._squirrelListRef.off();
       this._squirrelListRef = null;
     }
-
     // Remove onValue listener and set squirrelListRef to null if newUID is null
     if (newUID == null) {
       if (this._squirrelListConfigRef != null) {
@@ -83,7 +44,6 @@ export class FirebaseRTDb {
       }
       this._squirrelListConfigRef = null;
     }
-
     // ensure squirrelListRef isn't null before calling its off() method.
     if (this._squirrelListConfigRef != null) {
       this._squirrelListConfigRef.off();
@@ -91,52 +51,44 @@ export class FirebaseRTDb {
     }
     // set _uid to newUID and change the reference to the new uid node.
     this._uid = newUID;
-    this._squirrelListRef = firebase
-      .database(this.firebaseApp)
+    this._squirrelListRef = app_1["default"]
+      .database(this._firebaseApp)
       .ref("users/" + this._uid + "/squirrelList");
-    this._squirrelListConfigRef = firebase
+    this._squirrelListConfigRef = app_1["default"]
       .database(this._firebaseApp)
       .ref("users/" + this._uid + "/squirrelConfig");
     // set callbacks when values change
-    this._squirrelListRef.on("value", (snapshot) => {
+    this._squirrelListRef.on("value", function (snapshot) {
       // capture the snapshot value
-      const data = snapshot.val();
+      var data = snapshot.val();
       console.log(data);
       // make sure listListenerCallback is a function before attempting to call it.
       if (typeof listListenerCallback == "function") {
         listListenerCallback(data);
       }
       // console.dir(data.list); // debug
-
       // type checking.
-      if (typeof data.list == "string")
-        this.squirrelListListenerSync = data.list.split(",");
+      // if (typeof data.list == "string")
+      // this.squirrelListListenerSync = data.list.split(",");
     });
-    this._squirrelListConfigRef.on("value", (snapshot) => {
+    this._squirrelListConfigRef.on("value", function (snapshot) {
       // capture the snapshot value
-      const data = snapshot.val();
+      var data = snapshot.val();
       // console.log(data);
-
       // make sure listConfigListenerCallback is a function before attempting to call it
       if (typeof listConfigListenerCallback == "function") {
         listConfigListenerCallback(data);
       }
     });
-  }
-
-  /** @method
-   *  Gets the value of users/this._uid/squirrelList/listConfig in the firebase database.
-   *  @returns any
-   */
-
-  oneShotListConfigSync() {
-    const dbRef = firebase.database(this._firebaseApp).ref();
+  };
+  FirebaseRTDb.prototype.oneShotListConfigSync = function () {
+    var dbRef = app_1["default"].database(this._firebaseApp).ref();
     dbRef
       .child("users")
       .child(this._uid)
       .child("squirrelConfig")
       .get()
-      .then((snapshot) => {
+      .then(function (snapshot) {
         if (snapshot.exists()) {
           return snapshot.val();
         } else {
@@ -144,25 +96,20 @@ export class FirebaseRTDb {
         }
         return null;
       })
-      .catch((error) => {
+      ["catch"](function (error) {
         console.error(error);
         return null;
       });
-  }
-
-  /** @method
-   *  Gets the value of users/this._uid/squirrelList in the firebase database.
-   *  @returns any
-   */
-  oneShotListSync() {
-    const dbRef = firebase.database(this._firebaseApp).ref();
-    let savedSquirrelVal = null;
+  };
+  FirebaseRTDb.prototype.oneShotListSync = function () {
+    var dbRef = app_1["default"].database(this._firebaseApp).ref();
+    var savedSquirrelVal = null;
     dbRef
       .child("users")
       .child(this._uid)
       .child("squirrelList")
       .get()
-      .then((snapshot) => {
+      .then(function (snapshot) {
         if (snapshot.exists()) {
           // savedSquirrelVal = snapshot.val
           return snapshot.val();
@@ -175,23 +122,17 @@ export class FirebaseRTDb {
           listConfig: null,
         };
       })
-      .catch((error) => {
+      ["catch"](function (error) {
         console.error(error);
         return null;
       });
     // throw new NotYetImplementedError();
-  }
-
-  /** @method
-   * writes ListConfig settings to database;
-   *
-   * @param {ListConfig} listConfig - the List configuration.
-   */
-  writeListConfigs(listConfig) {
-    firebase
+  };
+  FirebaseRTDb.prototype.writeListConfigs = function (listConfig) {
+    app_1["default"]
       .database()
       .ref("users/" + this._uid + "/squirrelConfig")
-      .set(listConfig, (error) => {
+      .set(listConfig, function (error) {
         if (error) {
           console.error(error);
         } else {
@@ -201,17 +142,16 @@ export class FirebaseRTDb {
           );
         }
       });
-  }
-
-  writeSquirrelList(squirrelList) {
-    firebase
+  };
+  FirebaseRTDb.prototype.writeSquirrelList = function (squirrelList) {
+    app_1["default"]
       .database()
       .ref("users/" + this._uid + "/squirrelList")
       .set(
         {
           list: squirrelList,
         },
-        (error) => {
+        function (error) {
           if (error) {
             console.error(error);
           } else {
@@ -222,14 +162,8 @@ export class FirebaseRTDb {
           }
         }
       );
-  }
-}
-
-// eslint-disable-next-line no-unused-vars
-// class NotYetImplementedError extends Error {
-//   constructor() {
-//     super();
-//     this.message = "This function is not yet implemented!";
-//     this.name = "NotYetImplemented";
-//   }
-// }
+  };
+  return FirebaseRTDb;
+})();
+exports["default"] = FirebaseRTDb;
+//# sourceMappingURL=FirebaseRTDb.js.map
